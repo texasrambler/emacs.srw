@@ -25,7 +25,11 @@
  '(doom-modeline-project-name t)
  '(doom-modeline-time t)
  '(doom-modeline-total-line-number t)
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(dashboard doom-modeline doom-themes embark-consult
+		   evil helpful magit marginalia modus-themes
+		   orderless page-break-lines procress projectile
+		   vertico)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

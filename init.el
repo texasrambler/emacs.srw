@@ -179,6 +179,7 @@
 (evil-set-initial-state 'magit-status-mode 'emacs)
 (evil-set-initial-state 'help-mode 'emacs)
 (evil-set-initial-state 'dashboard-mode 'emacs)
+(evil-set-initial-state 'Info-mode 'emacs)
 (evil-set-initial-state 'erc-mode 'emacs) ;; for IRC clients
 
 ;; Page breaks

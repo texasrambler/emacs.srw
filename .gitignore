@@ -4,3 +4,7 @@ elpa
 transient
 recentf.eld
 /*.eld
+.cache
+tree-sitter
+backup.txt
+history

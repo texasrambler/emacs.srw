@@ -3,11 +3,34 @@
 (setq backup-inhibited nil)
 (setq create-lockfiles nil)
 
-;; Set the location for the custom file
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-
-;; Load the custom file, suppressing errors if it doesn't exist yet
-(load custom-file :noerror)
+;; Use instead of the custom.el
+;; Disable the damn thing by making it disposable.
+(setq custom-file (make-temp-file "emacs-custom-"))
+;; set custom vars here
+(custom-set-variables
+ '(doom-modeline-always-show-macro-register t)
+ '(doom-modeline-battery t)
+ '(doom-modeline-buffer-encoding t)
+ '(doom-modeline-buffer-file-name-style 'auto)
+ '(doom-modeline-buffer-modification-icon t)
+ '(doom-modeline-buffer-name t)
+ '(doom-modeline-buffer-state-icon t)
+ '(doom-modeline-enable-buffer-position t)
+ '(doom-modeline-env-version t)
+ '(doom-modeline-github t)
+ '(doom-modeline-indent-info t)
+;; '(doom-modeline-lsp t)
+ '(doom-modeline-major-mode-color-icon t)
+ '(doom-modeline-major-mode-icon t)
+ '(doom-modeline-minor-modes t)
+ '(doom-modeline-modal t)
+ '(doom-modeline-modal-icon t)
+ '(doom-modeline-modal-modern-icon t)
+ '(doom-modeline-project-name t)
+ '(doom-modeline-time t)
+ '(doom-modeline-total-line-number t)
+ '(evil-default-state 'emacs)
+ '(package-selected-packages nil))
 
 ;; Make native compilation silent.
 (when (native-comp-available-p)
@@ -21,15 +44,6 @@
 (setq display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode) ; hook for programming files
 
-;; Start in a scratch list-interactive buffer
-(setq initial-buffer-choice t)
-(setq initial-major-mode 'lisp-interaction-mode)
-(setq initial-scratch-message
-      (format ";; This is `%s'.  Type `%s' to evaluate and print results.\n\n"
-              'lisp-interaction-mode
-              (propertize
-               (substitute-command-keys "\\<lisp-interaction-mode-map>\\[eval-print-last-sexp]")
-               'face 'help-key-binding)))
 (setq global-mark-ring-max 30)
 (setq tab-width 4)
 
@@ -53,58 +67,6 @@
 
 ;; Mark all themes as safe
 (setq custom-safe-themes t)
-
-;; Make sure packages are installed before used
-(unless (package-installed-p 'modus-themes)
-  (package-install 'modus-themes))
-
-(unless (package-installed-p 'doome-themes)
-  (package-install 'doom-themes))
-(unless (package-installed-p 'evil)
-  (package-install 'evil))
-
-(unless (package-installed-p 'helpful)
-  (package-install 'helpful))
-
-(unless (package-installed-p 'doom-modeline)
-  (package-install 'doom-modeline))
-
-(unless (package-installed-p 'procress)
-  (package-install 'procress))
-
-(unless (package-installed-p 'page-break-lines)
-  (package-install 'page-break-lines))
-
-(unless (package-installed-p 'nerd-icons)
-  (package-install 'nerd-icons))
-
-(unless (package-installed-p 'projectile)
-  (package-install 'projectile))
-
-(unless (package-installed-p 'dashboard)
-  (package-install 'dashboard))
-
-(unless (package-installed-p 'vertico)
-  (package-install 'vertico))
-
-(unless (package-installed-p 'marginalia)
-  (package-install 'marginalia))
-
-(unless (package-installed-p 'orderless)
-  (package-install 'orderless))
-
-(unless (package-installed-p 'consult)
-  (package-install 'consult))
-
-(unless (package-installed-p 'embark)
-  (package-install 'embark))
-
-(unless (package-installed-p 'embark-consult)
-  (package-install 'embark-consult))
-
-(unless (package-installed-p 'magit)
-  (package-install 'magit))
-
 ;;;; Load Packages
 ;; Theme
 (use-package doom-themes
@@ -147,40 +109,6 @@
   (add-hook 'LaTeX-mode-hook #'procress-auctex-mode)
   :config
   (procress-load-default-svg-images))
-
-;; Evil Mode
-;; enable Evil
-(require 'evil)
-(global-unset-key (kbd "C-z"))
-(setq evil-toggle-key "C-z")
-(setq evil-want-C-u-scroll t)
-(evil-mode 1)
-
-;; Evil config
-;; esc quits
-(define-key evil-normal-state-map [escape] 'keyboard-quit)
-(define-key evil-visual-state-map [escape] 'keyboard-quit)
-(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-;; get back some Emacs keys
-(define-key evil-normal-state-map "\C-y" 'yank)
-(define-key evil-insert-state-map "\C-y" 'yank)
-(define-key evil-visual-state-map "\C-y" 'yank)
-(define-key evil-insert-state-map "\C-e" 'end-of-line)
-(define-key evil-normal-state-map "\C-w" 'evil-delete)
-(define-key evil-insert-state-map "\C-w" 'evil-delete)
-(define-key evil-insert-state-map "\C-r" 'search-backward)
-(define-key evil-visual-state-map "\C-w" 'evil-delete)
-;; Modes
-(evil-set-initial-state 'dired-mode 'emacs)
-(evil-set-initial-state 'magit-status-mode 'emacs)
-(evil-set-initial-state 'help-mode 'emacs)
-(evil-set-initial-state 'dashboard-mode 'emacs)
-(evil-set-initial-state 'Info-mode 'emacs)
-(evil-set-initial-state 'erc-mode 'emacs) ;; for IRC clients
 
 ;; Page breaks
 (use-package page-break-lines)
@@ -349,7 +277,7 @@
   ;; register formatting, adds thin separator lines, register sorting and hides
   ;; the window mode line.
   (advice-add #'register-preview :override #'consult-register-window)
-  (setq register-preview-delay 0.5)
+  (setq register-preview-delay 0.1)
 
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
@@ -424,43 +352,155 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; Corfu
-
-;; Cape
-
-;; Tempel
-
 ;; Magit
 (use-package magit
   :ensure t)
 
-;; Modify dired to us a single buffer
-(eval-after-load "dired"
-'(progn
-    (defadvice dired-advertised-find-file (around dired-subst-directory activate)
-    "Replace current buffer if file is a directory."
-    (interactive)
-    (let* ((orig (current-buffer))
-	    ;; (filename (dired-get-filename))
-	    (filename (dired-get-filename t t))
-	    (bye-p (file-directory-p filename)))
-	ad-do-it
-	(when (and bye-p (not (string-match "[/\\\\]\\.$" filename)))
-	(kill-buffer orig))))))
+;;;; Org Mode Settings
+;; Define custom variables for org mode
+; org agenda directory
+(setq org-agenda-files '("~/org"))
 
-(eval-after-load "dired"
-;; don't remove `other-window', the caller expects it to be there
-'(defun dired-up-directory (&optional other-window)
-    "Run Dired on parent directory of current directory."
-    (interactive "P")
-    (let* ((dir (dired-current-directory))
-    (orig (current-buffer))
-    (up (file-name-directory (directory-file-name dir))))
-    (or (dired-goto-file (directory-file-name dir))
-    ;; Only try dired-goto-subdir if buffer has more than one dir.
-    (and (cdr dired-subdir-alist)
-	(dired-goto-subdir up))
-    (progn
-	(kill-buffer orig)
-	(dired up)
-	(dired-goto-file dir))))))
+; When a TODO is set to a done state, record a timestamp
+(setq org-log-done 'time)
+
+;; Follow the links
+(setq org-return-follows-link  t)
+
+;; Hide the markers so you just see bold text as BOLD-TEXT and not *BOLD-TEXT*
+(setq org-hide-emphasis-markers t)
+
+;; Make the indentation look nicer
+(add-hook 'org-mode-hook 'org-indent-mode)
+
+;; Associate all org files with org mode
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+
+;; Shortcuts for storing links, viewing the agenda, and starting a capture
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(define-key global-map "\C-cc" 'org-capture)
+
+;; Wrap the lines in org mode so that things are easier to read
+(add-hook 'org-mode-hook 'visual-line-mode)
+
+;; Setup font look and feel
+(let* ((variable-tuple
+        (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
+              ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+              ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+              ((x-list-fonts "Verdana")         '(:font "Verdana"))
+              ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+              (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+       (base-font-color     (face-foreground 'default nil 'default))
+       (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+  (custom-theme-set-faces
+   'user
+   `(org-level-8 ((t (,@headline ,@variable-tuple))))
+   `(org-level-7 ((t (,@headline ,@variable-tuple))))
+   `(org-level-6 ((t (,@headline ,@variable-tuple))))
+   `(org-level-5 ((t (,@headline ,@variable-tuple))))
+   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.2))))
+   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.3))))
+   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.5))))
+   `(org-document-title ((t (,@headline ,@variable-tuple :height 1.6 :underline nil))))))
+
+;; Capture templates
+(setq org-capture-templates
+      '(    
+        ("n" "Note"
+         entry (file+headline "~/org/notes.org" "Random Notes")
+         "** %?"
+         :empty-lines 0)
+	("g" "General To-Do"
+         entry (file+headline "~/org/todos.org" "General Tasks")
+         "* TODO [#B] %?\n:Created: %T\n "
+         :empty-lines 0)
+	("w" "Work To-Do"
+         entry (file+headline "~/org/work.org" "Work Tasks")
+         "* TODO [#B] %?\n:Created: %T\n "
+         :empty-lines 0)
+        ("c" "Code To-Do"
+         entry (file+headline "~/org/code.org" "Code Related Tasks")
+         "* TODO [#B] %?\n:Created: %T\n%i\n%a\nProposed Solution: "
+         :empty-lines 0)	
+	))
+
+;; TODO states
+(setq org-todo-keywords
+      '(
+	(sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFYING(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )
+	))
+
+;; TODO colors
+(setq org-todo-keyword-faces
+      '(
+        ("TODO" . (:foreground "GoldenRod" :weight bold))
+        ("PLANNING" . (:foreground "DeepPink" :weight bold))
+        ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
+        ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
+        ("BLOCKED" . (:foreground "Red" :weight bold))
+        ("DONE" . (:foreground "LimeGreen" :weight bold))
+        ("OBE" . (:foreground "LimeGreen" :weight bold))
+        ("WONT-DO" . (:foreground "LimeGreen" :weight bold))
+        ))
+
+;; Company
+(use-package company
+  :ensure t
+  :hook
+  (after-init-hook . global-company-mode)
+  (after-init-hook . company-tng-mode)
+  )
+(setq company-tooltip-align-annotations t)
+(setq company-tooltip-annotation-padding 1)
+
+
+;;;; Trees-sitter
+;; Automatically use python-ts-mode for python files
+;;(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+
+;;(with-eval-after-load 'eglot
+;;  (add-to-list 'eglot-server-programs
+;;	       '(python-base-mode . ("ruff-lsp"))) ;; Or just "ruff server" for newer versions
+;;  (add-hook 'python-base-mode-hook 'eglot-local-mode) ;; Automatically start eglot
+;;  )
+
+;;===================================================
+;;== keep at the end so evil can overwrite keymaps ==
+;;===================================================
+;; Evil Mode 
+(require 'evil)
+(global-unset-key (kbd "C-z"))
+(setq evil-toggle-key "C-z")
+(setq evil-want-C-u-scroll t)
+(evil-mode 1)
+
+;; Evil config
+;; esc quits
+(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-visual-state-map [escape] 'keyboard-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+;; get back some Emacs keys
+(define-key evil-normal-state-map "\C-y" 'yank)
+(define-key evil-insert-state-map "\C-y" 'yank)
+(define-key evil-visual-state-map "\C-y" 'yank)
+(define-key evil-insert-state-map "\C-e" 'end-of-line)
+(define-key evil-normal-state-map "\C-w" 'evil-delete)
+(define-key evil-insert-state-map "\C-w" 'evil-delete)
+(define-key evil-insert-state-map "\C-r" 'search-backward)
+(define-key evil-visual-state-map "\C-w" 'evil-delete)
+;; Modes
+(evil-set-initial-state 'dired-mode 'emacs)
+(evil-set-initial-state 'magit-status-mode 'emacs)
+(evil-set-initial-state 'help-mode 'emacs)
+(evil-set-initial-state 'dashboard-mode 'emacs)
+(evil-set-initial-state 'Info-mode 'emacs)
+(evil-set-initial-state 'Helpful-mode 'emacs)
+(evil-set-initial-state 'erc-mode 'emacs) ;; for IRC clients
